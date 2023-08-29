@@ -1,0 +1,16 @@
+{
+  "name": "@kolabuk/logger",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node ./dist/test.js"
+  },
+  "author": "KolAbuk",
+  "license": "ISC",
+  "dependencies": {
+    "@types/cli-color": "^2.0.2",
+    "cli-color": "^2.0.3"
+  }
+}

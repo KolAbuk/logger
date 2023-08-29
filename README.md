@@ -30,5 +30,8 @@ logger.error({ error: true, message: { json: "parsed" } });
 logger.close();
 ```
 
-Console output
-![Console output](output.png)
+Console output<br>
+<span style="color:white;background-color:blue">2023.07.29 14:29:25|test data</span><br>
+<span style="color:green;">2023.07.29 14:29:25|success|success</span><br>
+<span style="color:yellow;">2023.07.29 14:29:25|warn |null</span><br>
+<span style="color:red;">2023.07.29 14:29:25|error |{"error":true,"message":{"json":"parsed"}}</span><br>

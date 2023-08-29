@@ -17,7 +17,7 @@ const index_1 = require("./index");
             errorFilePath: "./data/logs/err.txt",
         });
         logger.log("test data", {
-            background: "bgBlue",
+        // background: "bgBlue",
         });
         logger.success("success");
         logger.warn(null);

@@ -39,7 +39,7 @@ export type settings = {
     | "bgWhiteBright";
   errorDescriptor?: boolean;
 };
-type status = "" | "success|" | "warn   |" | "err    |";
+type status = "" | "success|" | "warn   |" | "error  |";
 
 export class Logger {
   private fileDescriptor: number;
@@ -147,7 +147,7 @@ export class Logger {
   };
   error = (data: any): void => {
     try {
-      this.logger(data, "err    |", {
+      this.logger(data, "error  |", {
         color: "redBright",
         errorDescriptor: true,
       });

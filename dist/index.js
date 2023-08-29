@@ -39,8 +39,6 @@ class Logger {
         };
         this.logger = (data, statusTitle, settings) => {
             try {
-                // if (data === null) {
-                // } else
                 if (typeof data == "object") {
                     data = JSON.stringify(data);
                 }
@@ -86,7 +84,7 @@ class Logger {
         };
         this.error = (data) => {
             try {
-                this.logger(data, "err    |", {
+                this.logger(data, "error  |", {
                     color: "redBright",
                     errorDescriptor: true,
                 });

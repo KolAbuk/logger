@@ -29,3 +29,6 @@ logger.warn(null);
 logger.error({ error: true, message: { json: "parsed" } });
 logger.close();
 ```
+
+Console output
+![Console output](output.png)

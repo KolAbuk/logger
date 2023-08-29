@@ -1,6 +1,6 @@
 {
   "name": "@kolabuk/logger",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -16,5 +16,15 @@
     "@types/cli-color": "^2.0.2",
     "@types/node": "^20.5.7",
     "typescript": "^5.2.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KolAbuk/logger.git"
+  },
+  "keywords": [
+    "console",
+    "log",
+    "logging",
+    "logger"
+  ]
 }

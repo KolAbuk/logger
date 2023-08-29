@@ -31,4 +31,5 @@ logger.close();
 ```
 
 Console output
+<br>
 ![Console output](https://github.com/KolAbuk/logger/blob/master/image.png)

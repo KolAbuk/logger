@@ -10,7 +10,11 @@
   "author": "KolAbuk",
   "license": "ISC",
   "dependencies": {
-    "@types/cli-color": "^2.0.2",
     "cli-color": "^2.0.3"
+  },
+  "devDependencies": {
+    "@types/cli-color": "^2.0.2",
+    "@types/node": "^20.5.7",
+    "typescript": "^5.2.2"
   }
 }

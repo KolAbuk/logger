@@ -30,7 +30,7 @@ class Logger {
         this.getTime = () => {
             try {
                 const date = new Date();
-                const d = `${date.getFullYear()}.${this.zerofill(date.getMonth())}.${this.zerofill(date.getDate())} ${this.zerofill(date.getHours())}:${this.zerofill(date.getMinutes())}:${this.zerofill(date.getSeconds())}`;
+                const d = `${date.getFullYear()}.${this.zerofill(date.getMonth() + 1)}.${this.zerofill(date.getDate())} ${this.zerofill(date.getHours())}:${this.zerofill(date.getMinutes())}:${this.zerofill(date.getSeconds())}`;
                 return d;
             }
             catch (e) {

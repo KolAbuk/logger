@@ -84,7 +84,7 @@ export class Logger {
     try {
       const date = new Date();
       const d: string = `${date.getFullYear()}.${this.zerofill(
-        date.getMonth()
+        date.getMonth() + 1
       )}.${this.zerofill(date.getDate())} ${this.zerofill(
         date.getHours()
       )}:${this.zerofill(date.getMinutes())}:${this.zerofill(

@@ -6,9 +6,11 @@ export type settings = {
 export declare class Logger {
     private fileDescriptor;
     private errorFileDescriptor;
-    constructor({ filePath, errorFilePath, }: {
+    private debugMode;
+    constructor({ filePath, errorFilePath, debugMode, }: {
         filePath: string;
         errorFilePath?: string;
+        debugMode?: boolean;
     });
     close: () => void;
     private zerofill;
@@ -18,4 +20,5 @@ export declare class Logger {
     success: (data: any) => void;
     warn: (data: any) => void;
     error: (data: any) => void;
+    debug: (data: any) => void;
 }

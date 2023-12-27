@@ -15,6 +15,7 @@ const index_1 = require("./index");
         const logger = new index_1.Logger({
             filePath: "./data/logs/index.txt",
             errorFilePath: "./data/logs/err.txt",
+            debugMode: true,
         });
         logger.log("test data", {
             background: "bgBlue",
@@ -22,6 +23,7 @@ const index_1 = require("./index");
         logger.success("success");
         logger.warn(null);
         logger.error({ error: true, message: { json: "parsed" } });
+        logger.debug("Some debug data");
         logger.close();
     }
     catch (e) {

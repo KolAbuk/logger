@@ -8,7 +8,7 @@ const fs_1 = require("fs");
 const path_1 = require("path");
 const cli_color_1 = __importDefault(require("cli-color"));
 class Logger {
-    constructor({ filePath, errorFilePath, }) {
+    constructor({ filePath, errorFilePath, debugMode, }) {
         this.close = () => {
             try {
                 (0, fs_1.closeSync)(this.fileDescriptor);
@@ -93,6 +93,16 @@ class Logger {
                 throw e;
             }
         };
+        this.debug = (data) => {
+            try {
+                this.debugMode
+                    ? this.logger(data, "debug  |", { color: "yellow" })
+                    : null;
+            }
+            catch (e) {
+                throw e;
+            }
+        };
         if (!(0, fs_1.existsSync)((0, path_1.dirname)(filePath))) {
             (0, fs_1.mkdirSync)((0, path_1.dirname)(filePath), { recursive: true });
         }
@@ -103,6 +113,7 @@ class Logger {
         this.errorFileDescriptor = errorFilePath
             ? (0, fs_1.openSync)(errorFilePath, "a")
             : this.fileDescriptor;
+        this.debugMode = debugMode || false;
     }
 }
 exports.Logger = Logger;

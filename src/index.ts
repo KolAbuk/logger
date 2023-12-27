@@ -39,18 +39,21 @@ export type settings = {
     | "bgWhiteBright";
   errorDescriptor?: boolean;
 };
-type status = "" | "success|" | "warn   |" | "error  |";
+type status = "" | "success|" | "warn   |" | "error  |" | "debug  |";
 
 export class Logger {
   private fileDescriptor: number;
   private errorFileDescriptor: number;
+  private debugMode: boolean;
 
   constructor({
     filePath,
     errorFilePath,
+    debugMode,
   }: {
     filePath: string;
     errorFilePath?: string;
+    debugMode?: boolean;
   }) {
     if (!existsSync(dirname(filePath))) {
       mkdirSync(dirname(filePath), { recursive: true });
@@ -62,6 +65,7 @@ export class Logger {
     this.errorFileDescriptor = errorFilePath
       ? openSync(errorFilePath, "a")
       : this.fileDescriptor;
+    this.debugMode = debugMode || false;
   }
 
   close = (): void => {
@@ -151,6 +155,15 @@ export class Logger {
         color: "redBright",
         errorDescriptor: true,
       });
+    } catch (e) {
+      throw e;
+    }
+  };
+  debug = (data: any): void => {
+    try {
+      this.debugMode
+        ? this.logger(data, "debug  |", { color: "yellow" })
+        : null;
     } catch (e) {
       throw e;
     }

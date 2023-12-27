@@ -20,6 +20,7 @@ import { Logger } from "@kolabuk/logger";
 const logger = new Logger({
   filePath: "./data/logs/index.txt",
   errorFilePath: "./data/logs/err.txt",
+  debugMode: true,
 });
 logger.log("test data", {
   background: "bgBlue",
@@ -27,6 +28,7 @@ logger.log("test data", {
 logger.success("success");
 logger.warn(null);
 logger.error({ error: true, message: { json: "parsed" } });
+logger.debug("Some debug data"); //prints only if debugMode=true
 logger.close();
 ```
 

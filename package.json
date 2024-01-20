@@ -1,7 +1,7 @@
 {
   "name": "@kolabuk/logger",
-  "version": "1.0.6",
-  "description": "",
+  "version": "1.0.7",
+  "description": "Node.js logger with ts declaration",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",

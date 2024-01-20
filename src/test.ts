@@ -6,6 +6,8 @@ import { Logger } from "./index";
       filePath: "./data/logs/index.txt",
       errorFilePath: "./data/logs/err.txt",
       debugMode: true,
+      debugWriteMode: "file",
+      useMilliseconds: false,
     });
     logger.log("test data", {
       background: "bgBlue",

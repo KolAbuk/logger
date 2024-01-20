@@ -8,7 +8,7 @@ const fs_1 = require("fs");
 const path_1 = require("path");
 const cli_color_1 = __importDefault(require("cli-color"));
 class Logger {
-    constructor({ filePath, errorFilePath, debugMode, }) {
+    constructor({ filePath, errorFilePath, debugMode, debugWriteMode, useMilliseconds, }) {
         this.close = () => {
             try {
                 (0, fs_1.closeSync)(this.fileDescriptor);
@@ -30,7 +30,7 @@ class Logger {
         this.getTime = () => {
             try {
                 const date = new Date();
-                const d = `${date.getFullYear()}.${this.zerofill(date.getMonth() + 1)}.${this.zerofill(date.getDate())} ${this.zerofill(date.getHours())}:${this.zerofill(date.getMinutes())}:${this.zerofill(date.getSeconds())}`;
+                const d = `${date.getFullYear()}.${this.zerofill(date.getMonth() + 1)}.${this.zerofill(date.getDate())} ${this.zerofill(date.getHours())}:${this.zerofill(date.getMinutes())}:${this.zerofill(date.getSeconds())}${this.useMilliseconds ? `.${this.zerofill(date.getMilliseconds())}` : ""}`;
                 return d;
             }
             catch (e) {
@@ -39,6 +39,7 @@ class Logger {
         };
         this.logger = (data, statusTitle, settings) => {
             try {
+                const writeMode = (settings === null || settings === void 0 ? void 0 : settings.writeMode) || "console+file";
                 if (typeof data == "object") {
                     data = JSON.stringify(data);
                 }
@@ -46,13 +47,17 @@ class Logger {
                 color = (settings === null || settings === void 0 ? void 0 : settings.color) ? color[settings === null || settings === void 0 ? void 0 : settings.color] : color;
                 color = (settings === null || settings === void 0 ? void 0 : settings.background) ? color[settings === null || settings === void 0 ? void 0 : settings.background] : color;
                 const consoleData = color(`${this.getTime()}|${statusTitle}${data}`);
-                (settings === null || settings === void 0 ? void 0 : settings.errorDescriptor)
-                    ? console.error(consoleData)
-                    : console.log(consoleData);
-                const descriptor = (settings === null || settings === void 0 ? void 0 : settings.errorDescriptor)
-                    ? this.errorFileDescriptor
-                    : this.fileDescriptor;
-                (0, fs_1.writeFileSync)(descriptor, `${this.getTime()}|${statusTitle}${data}\n`, "utf8");
+                if (writeMode === "console" || writeMode === "console+file") {
+                    (settings === null || settings === void 0 ? void 0 : settings.errorDescriptor)
+                        ? console.error(consoleData)
+                        : console.log(consoleData);
+                }
+                if (writeMode === "file" || writeMode === "console+file") {
+                    const descriptor = (settings === null || settings === void 0 ? void 0 : settings.errorDescriptor)
+                        ? this.errorFileDescriptor
+                        : this.fileDescriptor;
+                    (0, fs_1.writeFileSync)(descriptor, `${this.getTime()}|${statusTitle}${data}\n`, "utf8");
+                }
             }
             catch (e) {
                 throw e;
@@ -96,7 +101,10 @@ class Logger {
         this.debug = (data) => {
             try {
                 this.debugMode
-                    ? this.logger(data, "debug  |", { color: "yellow" })
+                    ? this.logger(data, "debug  |", {
+                        color: "yellow",
+                        writeMode: this.debugWriteMode,
+                    })
                     : null;
             }
             catch (e) {
@@ -114,6 +122,8 @@ class Logger {
             ? (0, fs_1.openSync)(errorFilePath, "a")
             : this.fileDescriptor;
         this.debugMode = debugMode || false;
+        this.debugWriteMode = debugWriteMode || "console+file";
+        this.useMilliseconds = useMilliseconds || false;
     }
 }
 exports.Logger = Logger;

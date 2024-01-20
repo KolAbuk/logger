@@ -2,6 +2,7 @@ import { writeFileSync, openSync, closeSync, existsSync, mkdirSync } from "fs";
 import { dirname } from "path";
 import clc from "cli-color";
 
+type writeMode = "console" | "file" | "console+file";
 export type settings = {
   color?:
     | "black"
@@ -38,6 +39,7 @@ export type settings = {
     | "bgCyanBright"
     | "bgWhiteBright";
   errorDescriptor?: boolean;
+  writeMode?: writeMode;
 };
 type status = "" | "success|" | "warn   |" | "error  |" | "debug  |";
 
@@ -45,15 +47,21 @@ export class Logger {
   private fileDescriptor: number;
   private errorFileDescriptor: number;
   private debugMode: boolean;
+  private debugWriteMode: writeMode;
+  private useMilliseconds: boolean;
 
   constructor({
     filePath,
     errorFilePath,
     debugMode,
+    debugWriteMode,
+    useMilliseconds,
   }: {
     filePath: string;
     errorFilePath?: string;
     debugMode?: boolean;
+    debugWriteMode?: writeMode;
+    useMilliseconds?: boolean;
   }) {
     if (!existsSync(dirname(filePath))) {
       mkdirSync(dirname(filePath), { recursive: true });
@@ -66,6 +74,8 @@ export class Logger {
       ? openSync(errorFilePath, "a")
       : this.fileDescriptor;
     this.debugMode = debugMode || false;
+    this.debugWriteMode = debugWriteMode || "console+file";
+    this.useMilliseconds = useMilliseconds || false;
   }
 
   close = (): void => {
@@ -93,7 +103,9 @@ export class Logger {
         date.getHours()
       )}:${this.zerofill(date.getMinutes())}:${this.zerofill(
         date.getSeconds()
-      )}`;
+      )}${
+        this.useMilliseconds ? `.${this.zerofill(date.getMilliseconds())}` : ""
+      }`;
       return d;
     } catch (e) {
       throw e;
@@ -105,6 +117,7 @@ export class Logger {
     settings?: settings
   ): void => {
     try {
+      const writeMode: writeMode = settings?.writeMode || "console+file";
       if (typeof data == "object") {
         data = JSON.stringify(data);
       }
@@ -112,17 +125,21 @@ export class Logger {
       color = settings?.color ? color[settings?.color] : color;
       color = settings?.background ? color[settings?.background] : color;
       const consoleData = color(`${this.getTime()}|${statusTitle}${data}`);
-      settings?.errorDescriptor
-        ? console.error(consoleData)
-        : console.log(consoleData);
-      const descriptor = settings?.errorDescriptor
-        ? this.errorFileDescriptor
-        : this.fileDescriptor;
-      writeFileSync(
-        descriptor,
-        `${this.getTime()}|${statusTitle}${data}\n`,
-        "utf8"
-      );
+      if (writeMode === "console" || writeMode === "console+file") {
+        settings?.errorDescriptor
+          ? console.error(consoleData)
+          : console.log(consoleData);
+      }
+      if (writeMode === "file" || writeMode === "console+file") {
+        const descriptor = settings?.errorDescriptor
+          ? this.errorFileDescriptor
+          : this.fileDescriptor;
+        writeFileSync(
+          descriptor,
+          `${this.getTime()}|${statusTitle}${data}\n`,
+          "utf8"
+        );
+      }
     } catch (e) {
       throw e;
     }
@@ -162,7 +179,10 @@ export class Logger {
   debug = (data: any): void => {
     try {
       this.debugMode
-        ? this.logger(data, "debug  |", { color: "yellow" })
+        ? this.logger(data, "debug  |", {
+            color: "yellow",
+            writeMode: this.debugWriteMode,
+          })
         : null;
     } catch (e) {
       throw e;

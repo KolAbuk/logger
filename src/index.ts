@@ -87,9 +87,13 @@ export class Logger {
     }
   };
 
-  private zerofill = (val: number): string => {
+  private zerofill = (val: number, digits: number = 2): string => {
     try {
-      return val < 10 ? `0${val}` : String(val);
+      let res: string = String(val);
+      for (let i = 1; i < digits; i++) {
+        res = Number(res) < 10 ** i ? `0${res}` : res;
+      }
+      return res;
     } catch (e) {
       throw e;
     }
@@ -104,7 +108,9 @@ export class Logger {
       )}:${this.zerofill(date.getMinutes())}:${this.zerofill(
         date.getSeconds()
       )}${
-        this.useMilliseconds ? `.${this.zerofill(date.getMilliseconds())}` : ""
+        this.useMilliseconds
+          ? `.${this.zerofill(date.getMilliseconds(), 3)}`
+          : ""
       }`;
       return d;
     } catch (e) {

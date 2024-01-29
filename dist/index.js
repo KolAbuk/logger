@@ -19,9 +19,13 @@ class Logger {
                     throw e;
             }
         };
-        this.zerofill = (val) => {
+        this.zerofill = (val, digits = 2) => {
             try {
-                return val < 10 ? `0${val}` : String(val);
+                let res = String(val);
+                for (let i = 1; i < digits; i++) {
+                    res = Number(res) < 10 ** i ? `0${res}` : res;
+                }
+                return res;
             }
             catch (e) {
                 throw e;
@@ -30,7 +34,9 @@ class Logger {
         this.getTime = () => {
             try {
                 const date = new Date();
-                const d = `${date.getFullYear()}.${this.zerofill(date.getMonth() + 1)}.${this.zerofill(date.getDate())} ${this.zerofill(date.getHours())}:${this.zerofill(date.getMinutes())}:${this.zerofill(date.getSeconds())}${this.useMilliseconds ? `.${this.zerofill(date.getMilliseconds())}` : ""}`;
+                const d = `${date.getFullYear()}.${this.zerofill(date.getMonth() + 1)}.${this.zerofill(date.getDate())} ${this.zerofill(date.getHours())}:${this.zerofill(date.getMinutes())}:${this.zerofill(date.getSeconds())}${this.useMilliseconds
+                    ? `.${this.zerofill(date.getMilliseconds(), 3)}`
+                    : ""}`;
                 return d;
             }
             catch (e) {

@@ -18,6 +18,7 @@ const index_1 = require("./index");
             debugMode: true,
             debugWriteMode: "file",
             useMilliseconds: false,
+            maxConsoleTextLen: 20,
         });
         logger.log("test data", {
             background: "bgBlue",

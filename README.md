@@ -23,6 +23,7 @@ const logger = new Logger({
   debugMode: true,
   debugWriteMode: "file", //console only/file only/console+file
   useMilliseconds: false,
+  maxConsoleTextLen: 20, //slice console output if define, file output always full
 });
 logger.log("test data", {
   background: "bgBlue",

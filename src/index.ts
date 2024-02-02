@@ -41,7 +41,13 @@ export type settings = {
   errorDescriptor?: boolean;
   writeMode?: writeMode;
 };
-type status = "" | "success|" | "warn   |" | "error  |" | "debug  |";
+type status =
+  | ""
+  | "success|"
+  | "warn   |"
+  | "error  |"
+  | "debug  |"
+  | "info   |";
 
 export class Logger {
   private fileDescriptor: number;
@@ -49,6 +55,7 @@ export class Logger {
   private debugMode: boolean;
   private debugWriteMode: writeMode;
   private useMilliseconds: boolean;
+  private maxConsoleTextLen?: number;
 
   constructor({
     filePath,
@@ -56,12 +63,14 @@ export class Logger {
     debugMode,
     debugWriteMode,
     useMilliseconds,
+    maxConsoleTextLen,
   }: {
     filePath: string;
     errorFilePath?: string;
     debugMode?: boolean;
     debugWriteMode?: writeMode;
     useMilliseconds?: boolean;
+    maxConsoleTextLen?: number;
   }) {
     if (!existsSync(dirname(filePath))) {
       mkdirSync(dirname(filePath), { recursive: true });
@@ -76,6 +85,7 @@ export class Logger {
     this.debugMode = debugMode || false;
     this.debugWriteMode = debugWriteMode || "console+file";
     this.useMilliseconds = useMilliseconds || false;
+    this.maxConsoleTextLen = maxConsoleTextLen;
   }
 
   close = (): void => {
@@ -130,7 +140,11 @@ export class Logger {
       let color: clc.Color | clc.Format = clc;
       color = settings?.color ? color[settings?.color] : color;
       color = settings?.background ? color[settings?.background] : color;
-      const consoleData = color(`${this.getTime()}|${statusTitle}${data}`);
+      const consoleData = color(
+        `${this.getTime()}|${statusTitle}${
+          this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data
+        }`
+      );
       if (writeMode === "console" || writeMode === "console+file") {
         settings?.errorDescriptor
           ? console.error(consoleData)
@@ -168,6 +182,13 @@ export class Logger {
   warn = (data: any): void => {
     try {
       this.logger(data, "warn   |", { color: "yellow" });
+    } catch (e) {
+      throw e;
+    }
+  };
+  info = (data: any): void => {
+    try {
+      this.logger(data, "info   |", { color: "yellow" });
     } catch (e) {
       throw e;
     }

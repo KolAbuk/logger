@@ -8,7 +8,7 @@ const fs_1 = require("fs");
 const path_1 = require("path");
 const cli_color_1 = __importDefault(require("cli-color"));
 class Logger {
-    constructor({ filePath, errorFilePath, debugMode, debugWriteMode, useMilliseconds, }) {
+    constructor({ filePath, errorFilePath, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, }) {
         this.close = () => {
             try {
                 (0, fs_1.closeSync)(this.fileDescriptor);
@@ -52,7 +52,7 @@ class Logger {
                 let color = cli_color_1.default;
                 color = (settings === null || settings === void 0 ? void 0 : settings.color) ? color[settings === null || settings === void 0 ? void 0 : settings.color] : color;
                 color = (settings === null || settings === void 0 ? void 0 : settings.background) ? color[settings === null || settings === void 0 ? void 0 : settings.background] : color;
-                const consoleData = color(`${this.getTime()}|${statusTitle}${data}`);
+                const consoleData = color(`${this.getTime()}|${statusTitle}${this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data}`);
                 if (writeMode === "console" || writeMode === "console+file") {
                     (settings === null || settings === void 0 ? void 0 : settings.errorDescriptor)
                         ? console.error(consoleData)
@@ -88,6 +88,14 @@ class Logger {
         this.warn = (data) => {
             try {
                 this.logger(data, "warn   |", { color: "yellow" });
+            }
+            catch (e) {
+                throw e;
+            }
+        };
+        this.info = (data) => {
+            try {
+                this.logger(data, "info   |", { color: "yellow" });
             }
             catch (e) {
                 throw e;
@@ -130,6 +138,7 @@ class Logger {
         this.debugMode = debugMode || false;
         this.debugWriteMode = debugWriteMode || "console+file";
         this.useMilliseconds = useMilliseconds || false;
+        this.maxConsoleTextLen = maxConsoleTextLen;
     }
 }
 exports.Logger = Logger;

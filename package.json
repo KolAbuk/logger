@@ -1,6 +1,6 @@
 {
   "name": "@kolabuk/logger",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Node.js logger with ts declaration",
   "main": "./dist/index.js",
   "scripts": {
@@ -17,6 +17,9 @@
     "@types/node": "^20.5.7",
     "typescript": "^5.2.2"
   },
+  "files": [
+    "dist/*"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/KolAbuk/logger.git"

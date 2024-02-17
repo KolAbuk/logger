@@ -69,62 +69,20 @@ class Logger {
                 throw e;
             }
         };
-        this.log = (data, settings) => {
-            try {
-                this.logger(data, "", settings);
-            }
-            catch (e) {
-                throw e;
-            }
-        };
-        this.success = (data) => {
-            try {
-                this.logger(data, "success|", { color: "greenBright" });
-            }
-            catch (e) {
-                throw e;
-            }
-        };
-        this.warn = (data) => {
-            try {
-                this.logger(data, "warn   |", { color: "yellow" });
-            }
-            catch (e) {
-                throw e;
-            }
-        };
-        this.info = (data) => {
-            try {
-                this.logger(data, "info   |", { color: "yellow" });
-            }
-            catch (e) {
-                throw e;
-            }
-        };
-        this.error = (data) => {
-            try {
-                this.logger(data, "error  |", {
-                    color: "redBright",
-                    errorDescriptor: true,
-                });
-            }
-            catch (e) {
-                throw e;
-            }
-        };
-        this.debug = (data) => {
-            try {
-                this.debugMode
-                    ? this.logger(data, "debug  |", {
-                        color: "yellow",
-                        writeMode: this.debugWriteMode,
-                    })
-                    : null;
-            }
-            catch (e) {
-                throw e;
-            }
-        };
+        this.log = (data, settings) => this.logger(data, "", settings);
+        this.success = (data) => this.logger(data, "success|", { color: "greenBright" });
+        this.warn = (data) => this.logger(data, "warn   |", { color: "yellow" });
+        this.info = (data) => this.logger(data, "info   |", { color: "yellow" });
+        this.error = (data) => this.logger(data, "error  |", {
+            color: "redBright",
+            errorDescriptor: true,
+        });
+        this.debug = (data) => this.debugMode
+            ? this.logger(data, "debug  |", {
+                color: "yellow",
+                writeMode: this.debugWriteMode,
+            })
+            : undefined;
         if (!(0, fs_1.existsSync)((0, path_1.dirname)(filePath))) {
             (0, fs_1.mkdirSync)((0, path_1.dirname)(filePath), { recursive: true });
         }

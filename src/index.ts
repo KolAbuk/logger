@@ -165,54 +165,24 @@ export class Logger {
     }
   };
 
-  log = (data: any, settings?: settings): void => {
-    try {
-      this.logger(data, "", settings);
-    } catch (e) {
-      throw e;
-    }
-  };
-  success = (data: any): void => {
-    try {
-      this.logger(data, "success|", { color: "greenBright" });
-    } catch (e) {
-      throw e;
-    }
-  };
-  warn = (data: any): void => {
-    try {
-      this.logger(data, "warn   |", { color: "yellow" });
-    } catch (e) {
-      throw e;
-    }
-  };
-  info = (data: any): void => {
-    try {
-      this.logger(data, "info   |", { color: "yellow" });
-    } catch (e) {
-      throw e;
-    }
-  };
-  error = (data: any): void => {
-    try {
-      this.logger(data, "error  |", {
-        color: "redBright",
-        errorDescriptor: true,
-      });
-    } catch (e) {
-      throw e;
-    }
-  };
-  debug = (data: any): void => {
-    try {
-      this.debugMode
-        ? this.logger(data, "debug  |", {
-            color: "yellow",
-            writeMode: this.debugWriteMode,
-          })
-        : null;
-    } catch (e) {
-      throw e;
-    }
-  };
+  log = (data: any, settings?: settings): void =>
+    this.logger(data, "", settings);
+  success = (data: any): void =>
+    this.logger(data, "success|", { color: "greenBright" });
+  warn = (data: any): void =>
+    this.logger(data, "warn   |", { color: "yellow" });
+  info = (data: any): void =>
+    this.logger(data, "info   |", { color: "yellow" });
+  error = (data: any): void =>
+    this.logger(data, "error  |", {
+      color: "redBright",
+      errorDescriptor: true,
+    });
+  debug = (data: any): void =>
+    this.debugMode
+      ? this.logger(data, "debug  |", {
+          color: "yellow",
+          writeMode: this.debugWriteMode,
+        })
+      : undefined;
 }

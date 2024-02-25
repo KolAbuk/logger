@@ -25,6 +25,7 @@ const index_1 = require("./index");
         });
         logger.success("success");
         logger.warn(null);
+        logger.info("info");
         logger.error({ error: true, message: { json: "parsed" } });
         logger.debug("Some debug data");
         logger.close();

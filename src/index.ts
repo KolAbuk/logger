@@ -172,7 +172,7 @@ export class Logger {
   warn = (data: any): void =>
     this.logger(data, "warn   |", { color: "yellow" });
   info = (data: any): void =>
-    this.logger(data, "info   |", { color: "yellow" });
+    this.logger(data, "info   |", { color: "blueBright" });
   error = (data: any): void =>
     this.logger(data, "error  |", {
       color: "redBright",

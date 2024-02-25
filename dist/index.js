@@ -72,7 +72,7 @@ class Logger {
         this.log = (data, settings) => this.logger(data, "", settings);
         this.success = (data) => this.logger(data, "success|", { color: "greenBright" });
         this.warn = (data) => this.logger(data, "warn   |", { color: "yellow" });
-        this.info = (data) => this.logger(data, "info   |", { color: "yellow" });
+        this.info = (data) => this.logger(data, "info   |", { color: "blueBright" });
         this.error = (data) => this.logger(data, "error  |", {
             color: "redBright",
             errorDescriptor: true,

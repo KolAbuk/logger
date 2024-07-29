@@ -56,6 +56,7 @@ export class Logger {
   private debugWriteMode: writeMode;
   private useMilliseconds: boolean;
   private maxConsoleTextLen?: number;
+  private showPID: boolean;
 
   constructor({
     filePath,
@@ -64,6 +65,7 @@ export class Logger {
     debugWriteMode,
     useMilliseconds,
     maxConsoleTextLen,
+    showPID,
   }: {
     filePath: string;
     errorFilePath?: string;
@@ -71,6 +73,7 @@ export class Logger {
     debugWriteMode?: writeMode;
     useMilliseconds?: boolean;
     maxConsoleTextLen?: number;
+    showPID?: boolean;
   }) {
     if (!existsSync(dirname(filePath))) {
       mkdirSync(dirname(filePath), { recursive: true });
@@ -86,6 +89,7 @@ export class Logger {
     this.debugWriteMode = debugWriteMode || "console+file";
     this.useMilliseconds = useMilliseconds || false;
     this.maxConsoleTextLen = maxConsoleTextLen;
+    this.showPID = showPID || false;
   }
 
   close = (): void => {
@@ -141,7 +145,9 @@ export class Logger {
       color = settings?.color ? color[settings?.color] : color;
       color = settings?.background ? color[settings?.background] : color;
       const consoleData = color(
-        `${this.getTime()}|${statusTitle}${
+        `${this.getTime()}|${
+          this.showPID ? process.pid + "|" : ""
+        }${statusTitle}${
           this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data
         }`
       );

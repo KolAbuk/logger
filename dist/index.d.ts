@@ -12,13 +12,15 @@ export declare class Logger {
     private debugWriteMode;
     private useMilliseconds;
     private maxConsoleTextLen?;
-    constructor({ filePath, errorFilePath, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, }: {
+    private showPID;
+    constructor({ filePath, errorFilePath, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, }: {
         filePath: string;
         errorFilePath?: string;
         debugMode?: boolean;
         debugWriteMode?: writeMode;
         useMilliseconds?: boolean;
         maxConsoleTextLen?: number;
+        showPID?: boolean;
     });
     close: () => void;
     private zerofill;

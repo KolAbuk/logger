@@ -5,6 +5,15 @@ export type settings = {
     errorDescriptor?: boolean;
     writeMode?: writeMode;
 };
+export type loggerArgs = {
+    filePath: string;
+    errorFilePath?: string;
+    debugMode?: boolean;
+    debugWriteMode?: writeMode;
+    useMilliseconds?: boolean;
+    maxConsoleTextLen?: number;
+    showPID?: boolean;
+};
 export declare class Logger {
     private fileDescriptor;
     private errorFileDescriptor;
@@ -13,20 +22,12 @@ export declare class Logger {
     private useMilliseconds;
     private maxConsoleTextLen?;
     private showPID;
-    constructor({ filePath, errorFilePath, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, }: {
-        filePath: string;
-        errorFilePath?: string;
-        debugMode?: boolean;
-        debugWriteMode?: writeMode;
-        useMilliseconds?: boolean;
-        maxConsoleTextLen?: number;
-        showPID?: boolean;
-    });
+    constructor({ filePath, errorFilePath, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, }: loggerArgs);
     close: () => void;
     private zerofill;
     private getTime;
     private logger;
-    log: (data: any, settings?: settings | undefined) => void;
+    log: (data: any, settings?: settings) => void;
     success: (data: any) => void;
     warn: (data: any) => void;
     info: (data: any) => void;

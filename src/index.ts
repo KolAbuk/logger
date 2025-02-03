@@ -48,7 +48,15 @@ type status =
   | "error  |"
   | "debug  |"
   | "info   |";
-
+export type loggerArgs = {
+  filePath: string;
+  errorFilePath?: string;
+  debugMode?: boolean;
+  debugWriteMode?: writeMode;
+  useMilliseconds?: boolean;
+  maxConsoleTextLen?: number;
+  showPID?: boolean;
+};
 export class Logger {
   private fileDescriptor: number;
   private errorFileDescriptor: number;
@@ -66,15 +74,7 @@ export class Logger {
     useMilliseconds,
     maxConsoleTextLen,
     showPID,
-  }: {
-    filePath: string;
-    errorFilePath?: string;
-    debugMode?: boolean;
-    debugWriteMode?: writeMode;
-    useMilliseconds?: boolean;
-    maxConsoleTextLen?: number;
-    showPID?: boolean;
-  }) {
+  }: loggerArgs) {
     if (!existsSync(dirname(filePath))) {
       mkdirSync(dirname(filePath), { recursive: true });
     }

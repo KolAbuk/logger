@@ -13,8 +13,7 @@ const index_1 = require("./index");
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const logger = new index_1.Logger({
-            filePath: "./data/logs/index.txt",
-            errorFilePath: "./data/logs/err.txt",
+            dirPath: "./data/logs/main",
             debugMode: true,
             debugWriteMode: "file",
             useMilliseconds: false,

@@ -5,10 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
 const fs_1 = require("fs");
-const path_1 = require("path");
+const path_1 = __importDefault(require("path"));
 const cli_color_1 = __importDefault(require("cli-color"));
 class Logger {
-    constructor({ filePath, errorFilePath, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, }) {
+    constructor({ dirPath, fileName, errorFileName, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, }) {
         this.close = () => {
             try {
                 (0, fs_1.closeSync)(this.fileDescriptor);
@@ -83,16 +83,17 @@ class Logger {
                 writeMode: this.debugWriteMode,
             })
             : undefined;
-        if (!(0, fs_1.existsSync)((0, path_1.dirname)(filePath))) {
-            (0, fs_1.mkdirSync)((0, path_1.dirname)(filePath), { recursive: true });
+        if (!(0, fs_1.existsSync)(dirPath)) {
+            (0, fs_1.mkdirSync)(dirPath, { recursive: true });
         }
-        this.fileDescriptor = (0, fs_1.openSync)(filePath, "a");
-        if (errorFilePath && !(0, fs_1.existsSync)((0, path_1.dirname)(errorFilePath))) {
-            (0, fs_1.mkdirSync)((0, path_1.dirname)(errorFilePath), { recursive: true });
+        if (!fileName) {
+            fileName = "log.txt";
         }
-        this.errorFileDescriptor = errorFilePath
-            ? (0, fs_1.openSync)(errorFilePath, "a")
-            : this.fileDescriptor;
+        if (!errorFileName) {
+            errorFileName = "error.txt";
+        }
+        this.fileDescriptor = (0, fs_1.openSync)(path_1.default.join(dirPath, fileName), "a");
+        this.errorFileDescriptor = (0, fs_1.openSync)(path_1.default.join(dirPath, errorFileName), "a");
         this.debugMode = debugMode || false;
         this.debugWriteMode = debugWriteMode || "console+file";
         this.useMilliseconds = useMilliseconds || false;

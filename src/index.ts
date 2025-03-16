@@ -1,5 +1,5 @@
 import { writeFileSync, openSync, closeSync, existsSync, mkdirSync } from "fs";
-import { dirname } from "path";
+import path from "path";
 import clc from "cli-color";
 
 type writeMode = "console" | "file" | "console+file";
@@ -49,8 +49,9 @@ type status =
   | "debug  |"
   | "info   |";
 export type loggerArgs = {
-  filePath: string;
-  errorFilePath?: string;
+  dirPath: string;
+  fileName?: string;
+  errorFileName?: string;
   debugMode?: boolean;
   debugWriteMode?: writeMode;
   useMilliseconds?: boolean;
@@ -67,24 +68,26 @@ export class Logger {
   private showPID: boolean;
 
   constructor({
-    filePath,
-    errorFilePath,
+    dirPath,
+    fileName,
+    errorFileName,
     debugMode,
     debugWriteMode,
     useMilliseconds,
     maxConsoleTextLen,
     showPID,
   }: loggerArgs) {
-    if (!existsSync(dirname(filePath))) {
-      mkdirSync(dirname(filePath), { recursive: true });
+    if (!existsSync(dirPath)) {
+      mkdirSync(dirPath, { recursive: true });
     }
-    this.fileDescriptor = openSync(filePath, "a");
-    if (errorFilePath && !existsSync(dirname(errorFilePath))) {
-      mkdirSync(dirname(errorFilePath), { recursive: true });
+    if (!fileName) {
+      fileName = "log.txt";
     }
-    this.errorFileDescriptor = errorFilePath
-      ? openSync(errorFilePath, "a")
-      : this.fileDescriptor;
+    if (!errorFileName) {
+      errorFileName = "error.txt";
+    }
+    this.fileDescriptor = openSync(path.join(dirPath, fileName), "a");
+    this.errorFileDescriptor = openSync(path.join(dirPath, errorFileName), "a");
     this.debugMode = debugMode || false;
     this.debugWriteMode = debugWriteMode || "console+file";
     this.useMilliseconds = useMilliseconds || false;

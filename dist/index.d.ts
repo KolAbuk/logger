@@ -6,8 +6,9 @@ export type settings = {
     writeMode?: writeMode;
 };
 export type loggerArgs = {
-    filePath: string;
-    errorFilePath?: string;
+    dirPath: string;
+    fileName?: string;
+    errorFileName?: string;
     debugMode?: boolean;
     debugWriteMode?: writeMode;
     useMilliseconds?: boolean;
@@ -22,12 +23,12 @@ export declare class Logger {
     private useMilliseconds;
     private maxConsoleTextLen?;
     private showPID;
-    constructor({ filePath, errorFilePath, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, }: loggerArgs);
+    constructor({ dirPath, fileName, errorFileName, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, }: loggerArgs);
     close: () => void;
     private zerofill;
     private getTime;
     private logger;
-    log: (data: any, settings?: settings) => void;
+    log: (data: any, settings?: settings | undefined) => void;
     success: (data: any) => void;
     warn: (data: any) => void;
     info: (data: any) => void;

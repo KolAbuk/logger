@@ -18,8 +18,9 @@ import { Logger } from "@kolabuk/logger";
 
 ```javascript
 const logger = new Logger({
-  filePath: "./data/logs/index.txt",
-  errorFilePath: "./data/logs/err.txt",
+  dirPath: "./data/logs/main",
+  fileName: "index.txt",
+  errorFileName: "index.err.txt",
   debugMode: true,
   debugWriteMode: "file", //console only/file only/console+file
   useMilliseconds: false,

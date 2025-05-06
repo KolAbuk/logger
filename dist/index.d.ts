@@ -28,7 +28,7 @@ export declare class Logger {
     private zerofill;
     private getTime;
     private logger;
-    log: (data: any, settings?: settings | undefined) => void;
+    log: (data: any, settings?: settings) => void;
     success: (data: any) => void;
     warn: (data: any) => void;
     info: (data: any) => void;

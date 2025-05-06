@@ -89,11 +89,10 @@ class Logger {
         if (!fileName) {
             fileName = "log.txt";
         }
-        if (!errorFileName) {
-            errorFileName = "error.txt";
-        }
         this.fileDescriptor = (0, fs_1.openSync)(path_1.default.join(dirPath, fileName), "a");
-        this.errorFileDescriptor = (0, fs_1.openSync)(path_1.default.join(dirPath, errorFileName), "a");
+        this.errorFileDescriptor = errorFileName
+            ? (0, fs_1.openSync)(path_1.default.join(dirPath, errorFileName), "a")
+            : this.fileDescriptor;
         this.debugMode = debugMode || false;
         this.debugWriteMode = debugWriteMode || "console+file";
         this.useMilliseconds = useMilliseconds || false;

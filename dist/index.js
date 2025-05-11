@@ -59,7 +59,7 @@ class Logger {
                 if (settings === null || settings === void 0 ? void 0 : settings.modifiers) {
                     styles.push(...settings.modifiers);
                 }
-                const coloredText = (0, node_util_1.styleText)(styles, `${this.getTime()}|${this.showPID ? process.pid + "|" : ""}${statusTitle}${this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data}`);
+                const coloredText = (0, node_util_1.styleText)(styles, `${this.getTime()}|${this.showPID ? process.pid + "|" : ""}${statusTitle}${this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data}`, { validateStream: false });
                 if (writeMode === "console" || writeMode === "console+file") {
                     (settings === null || settings === void 0 ? void 0 : settings.errorDescriptor)
                         ? console.error(coloredText)

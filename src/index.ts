@@ -184,7 +184,8 @@ export class Logger {
           this.showPID ? process.pid + "|" : ""
         }${statusTitle}${
           this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data
-        }`
+        }`,
+        { validateStream: false }
       );
       if (writeMode === "console" || writeMode === "console+file") {
         settings?.errorDescriptor

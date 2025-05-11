@@ -1,6 +1,6 @@
 import { writeFileSync, openSync, closeSync, existsSync, mkdirSync } from "fs";
 import path from "path";
-import { stripVTControlCharacters, styleText } from "util";
+import { stripVTControlCharacters, styleText } from "node:util";
 
 export type writeMode = "none" | "console" | "file" | "console+file";
 export type ForegroundColors =

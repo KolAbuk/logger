@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
-const util_1 = require("util");
+const node_util_1 = require("node:util");
 class Logger {
     constructor({ dirPath, fileName, errorFileName, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, jsonFormat, coloredFileOutput, }) {
         this.close = () => {
@@ -59,7 +59,7 @@ class Logger {
                 if (settings === null || settings === void 0 ? void 0 : settings.modifiers) {
                     styles.push(...settings.modifiers);
                 }
-                const coloredText = (0, util_1.styleText)(styles, `${this.getTime()}|${this.showPID ? process.pid + "|" : ""}${statusTitle}${this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data}`);
+                const coloredText = (0, node_util_1.styleText)(styles, `${this.getTime()}|${this.showPID ? process.pid + "|" : ""}${statusTitle}${this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data}`);
                 if (writeMode === "console" || writeMode === "console+file") {
                     (settings === null || settings === void 0 ? void 0 : settings.errorDescriptor)
                         ? console.error(coloredText)
@@ -71,7 +71,7 @@ class Logger {
                         : this.fileDescriptor;
                     (0, fs_1.writeFileSync)(descriptor, `${this.coloredFileOutput
                         ? coloredText
-                        : (0, util_1.stripVTControlCharacters)(coloredText)}\n`, "utf8");
+                        : (0, node_util_1.stripVTControlCharacters)(coloredText)}\n`, "utf8");
                 }
             }
             catch (e) {

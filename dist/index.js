@@ -8,7 +8,7 @@ const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const cli_color_1 = __importDefault(require("cli-color"));
 class Logger {
-    constructor({ dirPath, fileName, errorFileName, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, }) {
+    constructor({ dirPath, fileName, errorFileName, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, jsonFormat, }) {
         this.close = () => {
             try {
                 (0, fs_1.closeSync)(this.fileDescriptor);
@@ -47,7 +47,7 @@ class Logger {
             try {
                 const writeMode = (settings === null || settings === void 0 ? void 0 : settings.writeMode) || "console+file";
                 if (typeof data == "object") {
-                    data = JSON.stringify(data);
+                    data = JSON.stringify(data, null, this.jsonFormat);
                 }
                 let color = cli_color_1.default;
                 color = (settings === null || settings === void 0 ? void 0 : settings.color) ? color[settings === null || settings === void 0 ? void 0 : settings.color] : color;
@@ -98,6 +98,7 @@ class Logger {
         this.useMilliseconds = useMilliseconds || false;
         this.maxConsoleTextLen = maxConsoleTextLen;
         this.showPID = showPID || false;
+        this.jsonFormat = jsonFormat;
     }
 }
 exports.Logger = Logger;

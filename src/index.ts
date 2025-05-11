@@ -57,6 +57,7 @@ export type loggerArgs = {
   useMilliseconds?: boolean;
   maxConsoleTextLen?: number;
   showPID?: boolean;
+  jsonFormat?: string | number;
 };
 export class Logger {
   private fileDescriptor: number;
@@ -66,6 +67,7 @@ export class Logger {
   private useMilliseconds: boolean;
   private maxConsoleTextLen?: number;
   private showPID: boolean;
+  private jsonFormat?: string | number;
 
   constructor({
     dirPath,
@@ -76,6 +78,7 @@ export class Logger {
     useMilliseconds,
     maxConsoleTextLen,
     showPID,
+    jsonFormat,
   }: loggerArgs) {
     if (!existsSync(dirPath)) {
       mkdirSync(dirPath, { recursive: true });
@@ -92,6 +95,7 @@ export class Logger {
     this.useMilliseconds = useMilliseconds || false;
     this.maxConsoleTextLen = maxConsoleTextLen;
     this.showPID = showPID || false;
+    this.jsonFormat = jsonFormat;
   }
 
   close = (): void => {
@@ -141,7 +145,7 @@ export class Logger {
     try {
       const writeMode: writeMode = settings?.writeMode || "console+file";
       if (typeof data == "object") {
-        data = JSON.stringify(data);
+        data = JSON.stringify(data, null, this.jsonFormat);
       }
       let color: clc.Color | clc.Format = clc;
       color = settings?.color ? color[settings?.color] : color;

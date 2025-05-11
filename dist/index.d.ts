@@ -14,6 +14,7 @@ export type loggerArgs = {
     useMilliseconds?: boolean;
     maxConsoleTextLen?: number;
     showPID?: boolean;
+    jsonFormat?: string | number;
 };
 export declare class Logger {
     private fileDescriptor;
@@ -23,7 +24,8 @@ export declare class Logger {
     private useMilliseconds;
     private maxConsoleTextLen?;
     private showPID;
-    constructor({ dirPath, fileName, errorFileName, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, }: loggerArgs);
+    private jsonFormat?;
+    constructor({ dirPath, fileName, errorFileName, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, jsonFormat, }: loggerArgs);
     close: () => void;
     private zerofill;
     private getTime;

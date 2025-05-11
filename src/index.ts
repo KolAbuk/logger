@@ -1,43 +1,63 @@
 import { writeFileSync, openSync, closeSync, existsSync, mkdirSync } from "fs";
 import path from "path";
-import clc from "cli-color";
+import { stripVTControlCharacters, styleText } from "util";
 
-type writeMode = "console" | "file" | "console+file";
+export type writeMode = "none" | "console" | "file" | "console+file";
+export type ForegroundColors =
+  | "black"
+  | "blackBright"
+  | "blue"
+  | "blueBright"
+  | "cyan"
+  | "cyanBright"
+  | "gray"
+  | "green"
+  | "greenBright"
+  | "grey"
+  | "magenta"
+  | "magentaBright"
+  | "red"
+  | "redBright"
+  | "white"
+  | "whiteBright"
+  | "yellow"
+  | "yellowBright";
+export type BackgroundColors =
+  | "bgBlack"
+  | "bgBlackBright"
+  | "bgBlue"
+  | "bgBlueBright"
+  | "bgCyan"
+  | "bgCyanBright"
+  | "bgGray"
+  | "bgGreen"
+  | "bgGreenBright"
+  | "bgGrey"
+  | "bgMagenta"
+  | "bgMagentaBright"
+  | "bgRed"
+  | "bgRedBright"
+  | "bgWhite"
+  | "bgWhiteBright"
+  | "bgYellow"
+  | "bgYellowBright";
+export type Modifiers =
+  | "blink"
+  | "bold"
+  | "dim"
+  | "doubleunderline"
+  | "framed"
+  | "hidden"
+  | "inverse"
+  | "italic"
+  | "overlined"
+  | "reset"
+  | "strikethrough"
+  | "underline";
 export type settings = {
-  color?:
-    | "black"
-    | "red"
-    | "green"
-    | "yellow"
-    | "blue"
-    | "magenta"
-    | "cyan"
-    | "white"
-    | "blackBright"
-    | "redBright"
-    | "greenBright"
-    | "yellowBright"
-    | "blueBright"
-    | "magentaBright"
-    | "cyanBright"
-    | "whiteBright";
-  background?:
-    | "bgBlack"
-    | "bgRed"
-    | "bgGreen"
-    | "bgYellow"
-    | "bgBlue"
-    | "bgMagenta"
-    | "bgCyan"
-    | "bgWhite"
-    | "bgBlackBright"
-    | "bgRedBright"
-    | "bgGreenBright"
-    | "bgYellowBright"
-    | "bgBlueBright"
-    | "bgMagentaBright"
-    | "bgCyanBright"
-    | "bgWhiteBright";
+  color?: ForegroundColors;
+  background?: BackgroundColors;
+  modifiers?: Modifiers[];
   errorDescriptor?: boolean;
   writeMode?: writeMode;
 };
@@ -52,33 +72,33 @@ export type loggerArgs = {
   dirPath: string;
   fileName?: string;
   errorFileName?: string;
-  debugMode?: boolean;
   debugWriteMode?: writeMode;
   useMilliseconds?: boolean;
   maxConsoleTextLen?: number;
   showPID?: boolean;
   jsonFormat?: string | number;
+  coloredFileOutput?: boolean;
 };
 export class Logger {
   private fileDescriptor: number;
   private errorFileDescriptor: number;
-  private debugMode: boolean;
   private debugWriteMode: writeMode;
   private useMilliseconds: boolean;
   private maxConsoleTextLen?: number;
   private showPID: boolean;
   private jsonFormat?: string | number;
+  private coloredFileOutput: boolean;
 
   constructor({
     dirPath,
     fileName,
     errorFileName,
-    debugMode,
     debugWriteMode,
     useMilliseconds,
     maxConsoleTextLen,
     showPID,
     jsonFormat,
+    coloredFileOutput,
   }: loggerArgs) {
     if (!existsSync(dirPath)) {
       mkdirSync(dirPath, { recursive: true });
@@ -90,12 +110,13 @@ export class Logger {
     this.errorFileDescriptor = errorFileName
       ? openSync(path.join(dirPath, errorFileName), "a")
       : this.fileDescriptor;
-    this.debugMode = debugMode || false;
-    this.debugWriteMode = debugWriteMode || "console+file";
+    this.debugWriteMode = debugWriteMode || "none";
     this.useMilliseconds = useMilliseconds || false;
     this.maxConsoleTextLen = maxConsoleTextLen;
     this.showPID = showPID || false;
     this.jsonFormat = jsonFormat;
+    this.coloredFileOutput =
+      typeof coloredFileOutput == "undefined" ? true : coloredFileOutput;
   }
 
   close = (): void => {
@@ -147,10 +168,18 @@ export class Logger {
       if (typeof data == "object") {
         data = JSON.stringify(data, null, this.jsonFormat);
       }
-      let color: clc.Color | clc.Format = clc;
-      color = settings?.color ? color[settings?.color] : color;
-      color = settings?.background ? color[settings?.background] : color;
-      const consoleData = color(
+      const styles: Array<ForegroundColors | BackgroundColors | Modifiers> = [];
+      if (settings?.color) {
+        styles.push(settings.color);
+      }
+      if (settings?.background) {
+        styles.push(settings.background);
+      }
+      if (settings?.modifiers) {
+        styles.push(...settings.modifiers);
+      }
+      const coloredText = styleText(
+        styles,
         `${this.getTime()}|${
           this.showPID ? process.pid + "|" : ""
         }${statusTitle}${
@@ -159,8 +188,8 @@ export class Logger {
       );
       if (writeMode === "console" || writeMode === "console+file") {
         settings?.errorDescriptor
-          ? console.error(consoleData)
-          : console.log(consoleData);
+          ? console.error(coloredText)
+          : console.log(coloredText);
       }
       if (writeMode === "file" || writeMode === "console+file") {
         const descriptor = settings?.errorDescriptor
@@ -168,7 +197,11 @@ export class Logger {
           : this.fileDescriptor;
         writeFileSync(
           descriptor,
-          `${this.getTime()}|${statusTitle}${data}\n`,
+          `${
+            this.coloredFileOutput
+              ? coloredText
+              : stripVTControlCharacters(coloredText)
+          }\n`,
           "utf8"
         );
       }
@@ -191,7 +224,7 @@ export class Logger {
       errorDescriptor: true,
     });
   debug = (data: any): void =>
-    this.debugMode
+    this.debugWriteMode != "none"
       ? this.logger(data, "debug  |", {
           color: "yellow",
           writeMode: this.debugWriteMode,

@@ -3,8 +3,7 @@ import { Logger } from "./index";
 (async () => {
   try {
     const logger = new Logger({
-      dirPath: "./data/logs/main",
-      debugMode: true,
+      dirPath: "./data/logs/",
       debugWriteMode: "file",
       useMilliseconds: false,
       maxConsoleTextLen: 20,

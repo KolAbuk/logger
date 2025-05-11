@@ -6,9 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
-const cli_color_1 = __importDefault(require("cli-color"));
+const util_1 = require("util");
 class Logger {
-    constructor({ dirPath, fileName, errorFileName, debugMode, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, jsonFormat, }) {
+    constructor({ dirPath, fileName, errorFileName, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, jsonFormat, coloredFileOutput, }) {
         this.close = () => {
             try {
                 (0, fs_1.closeSync)(this.fileDescriptor);
@@ -49,20 +49,29 @@ class Logger {
                 if (typeof data == "object") {
                     data = JSON.stringify(data, null, this.jsonFormat);
                 }
-                let color = cli_color_1.default;
-                color = (settings === null || settings === void 0 ? void 0 : settings.color) ? color[settings === null || settings === void 0 ? void 0 : settings.color] : color;
-                color = (settings === null || settings === void 0 ? void 0 : settings.background) ? color[settings === null || settings === void 0 ? void 0 : settings.background] : color;
-                const consoleData = color(`${this.getTime()}|${this.showPID ? process.pid + "|" : ""}${statusTitle}${this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data}`);
+                const styles = [];
+                if (settings === null || settings === void 0 ? void 0 : settings.color) {
+                    styles.push(settings.color);
+                }
+                if (settings === null || settings === void 0 ? void 0 : settings.background) {
+                    styles.push(settings.background);
+                }
+                if (settings === null || settings === void 0 ? void 0 : settings.modifiers) {
+                    styles.push(...settings.modifiers);
+                }
+                const coloredText = (0, util_1.styleText)(styles, `${this.getTime()}|${this.showPID ? process.pid + "|" : ""}${statusTitle}${this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data}`);
                 if (writeMode === "console" || writeMode === "console+file") {
                     (settings === null || settings === void 0 ? void 0 : settings.errorDescriptor)
-                        ? console.error(consoleData)
-                        : console.log(consoleData);
+                        ? console.error(coloredText)
+                        : console.log(coloredText);
                 }
                 if (writeMode === "file" || writeMode === "console+file") {
                     const descriptor = (settings === null || settings === void 0 ? void 0 : settings.errorDescriptor)
                         ? this.errorFileDescriptor
                         : this.fileDescriptor;
-                    (0, fs_1.writeFileSync)(descriptor, `${this.getTime()}|${statusTitle}${data}\n`, "utf8");
+                    (0, fs_1.writeFileSync)(descriptor, `${this.coloredFileOutput
+                        ? coloredText
+                        : (0, util_1.stripVTControlCharacters)(coloredText)}\n`, "utf8");
                 }
             }
             catch (e) {
@@ -77,7 +86,7 @@ class Logger {
             color: "redBright",
             errorDescriptor: true,
         });
-        this.debug = (data) => this.debugMode
+        this.debug = (data) => this.debugWriteMode != "none"
             ? this.logger(data, "debug  |", {
                 color: "yellow",
                 writeMode: this.debugWriteMode,
@@ -93,12 +102,13 @@ class Logger {
         this.errorFileDescriptor = errorFileName
             ? (0, fs_1.openSync)(path_1.default.join(dirPath, errorFileName), "a")
             : this.fileDescriptor;
-        this.debugMode = debugMode || false;
-        this.debugWriteMode = debugWriteMode || "console+file";
+        this.debugWriteMode = debugWriteMode || "none";
         this.useMilliseconds = useMilliseconds || false;
         this.maxConsoleTextLen = maxConsoleTextLen;
         this.showPID = showPID || false;
         this.jsonFormat = jsonFormat;
+        this.coloredFileOutput =
+            typeof coloredFileOutput == "undefined" ? true : coloredFileOutput;
     }
 }
 exports.Logger = Logger;

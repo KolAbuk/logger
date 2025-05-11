@@ -1,21 +1,16 @@
 {
   "name": "@kolabuk/logger",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "Node.js logger with ts declaration",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "tsc",
-    "test": "tsc && node ./dist/test.js"
+    "dev": "tsc && node ./dist/test.js"
   },
   "author": "KolAbuk",
   "license": "ISC",
-  "dependencies": {
-    "cli-color": "^2.0.3"
-  },
   "devDependencies": {
-    "@types/cli-color": "^2.0.2",
-    "@types/node": "^20.5.7",
-    "typescript": "^5.2.2"
+    "@types/node": "^22.15.17",
+    "typescript": "^5.8.3"
   },
   "files": [
     "dist/*"

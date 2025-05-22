@@ -96,7 +96,7 @@ class Logger {
             (0, fs_1.mkdirSync)(dirPath, { recursive: true });
         }
         if (!fileName) {
-            fileName = "log.txt";
+            fileName = "log.ansi";
         }
         this.fileDescriptor = (0, fs_1.openSync)(path_1.default.join(dirPath, fileName), "a");
         this.errorFileDescriptor = errorFileName

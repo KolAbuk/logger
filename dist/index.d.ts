@@ -12,25 +12,29 @@ export type settings = {
 export type loggerArgs = {
     dirPath: string;
     fileName?: string;
-    errorFileName?: string;
+    fileExt?: string;
+    rotateFile?: {
+        size: number;
+        unit: "B" | "K" | "M" | "G";
+    };
     debugWriteMode?: writeMode;
     useMilliseconds?: boolean;
-    maxConsoleTextLen?: number;
     showPID?: boolean;
     jsonFormat?: string | number;
     coloredFileOutput?: boolean;
 };
 export declare class Logger {
-    private fileDescriptor;
-    private errorFileDescriptor;
+    private fileStream;
     private debugWriteMode;
     private useMilliseconds;
-    private maxConsoleTextLen?;
     private showPID;
     private jsonFormat?;
     private coloredFileOutput;
-    constructor({ dirPath, fileName, errorFileName, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, jsonFormat, coloredFileOutput, }: loggerArgs);
+    private file;
+    constructor({ dirPath, fileName, fileExt, debugWriteMode, useMilliseconds, showPID, jsonFormat, coloredFileOutput, rotateFile, }: loggerArgs);
     close: () => void;
+    private getFileName;
+    private getInitFileId;
     private zerofill;
     private getTime;
     private logger;

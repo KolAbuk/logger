@@ -1,6 +1,13 @@
-import { writeFileSync, openSync, closeSync, existsSync, mkdirSync } from "fs";
+import { createWriteStream, WriteStream } from "fs";
 import path from "path";
 import { stripVTControlCharacters, styleText } from "node:util";
+import {
+  accessSync,
+  mkdirSync,
+  readdirSync,
+  statSync,
+  constants,
+} from "node:fs";
 
 export type writeMode = "none" | "console" | "file" | "console+file";
 export type ForegroundColors =
@@ -71,63 +78,111 @@ type status =
 export type loggerArgs = {
   dirPath: string;
   fileName?: string;
-  errorFileName?: string;
+  fileExt?: string;
+  rotateFile?: { size: number; unit: "B" | "K" | "M" | "G" };
   debugWriteMode?: writeMode;
   useMilliseconds?: boolean;
-  maxConsoleTextLen?: number;
   showPID?: boolean;
   jsonFormat?: string | number;
   coloredFileOutput?: boolean;
 };
 export class Logger {
-  private fileDescriptor: number;
-  private errorFileDescriptor: number;
+  private fileStream: WriteStream;
   private debugWriteMode: writeMode;
   private useMilliseconds: boolean;
-  private maxConsoleTextLen?: number;
   private showPID: boolean;
   private jsonFormat?: string | number;
   private coloredFileOutput: boolean;
+  private file: {
+    maxSize: number;
+    writed: number;
+    dir: string;
+    name: string;
+    id: number;
+    ext: string;
+  };
 
   constructor({
     dirPath,
     fileName,
-    errorFileName,
+    fileExt,
     debugWriteMode,
     useMilliseconds,
-    maxConsoleTextLen,
     showPID,
     jsonFormat,
     coloredFileOutput,
+    rotateFile,
   }: loggerArgs) {
-    if (!existsSync(dirPath)) {
-      mkdirSync(dirPath, { recursive: true });
+    const rotateFileUnit2Bytes = {
+      B: 1,
+      K: 1024,
+      M: 1024 * 1024,
+      G: 1024 * 1024 * 1024,
+    };
+    if (!rotateFile) {
+      rotateFile = { size: 10, unit: "M" };
     }
-    if (!fileName) {
-      fileName = "log.ansi";
-    }
-    this.fileDescriptor = openSync(path.join(dirPath, fileName), "a");
-    this.errorFileDescriptor = errorFileName
-      ? openSync(path.join(dirPath, errorFileName), "a")
-      : this.fileDescriptor;
-    this.debugWriteMode = debugWriteMode || "none";
-    this.useMilliseconds = useMilliseconds || false;
-    this.maxConsoleTextLen = maxConsoleTextLen;
+    this.file = {
+      writed: 0,
+      maxSize: rotateFile.size * rotateFileUnit2Bytes[rotateFile.unit],
+      dir: path.resolve(dirPath),
+      name: fileName || "log",
+      ext: fileExt || "ansi",
+      id: 0,
+    };
+    this.getInitFileId();
+    this.fileStream = createWriteStream(this.getFileName(), {
+      flags: "a",
+      encoding: "utf8",
+    });
+    this.debugWriteMode = debugWriteMode || "console+file";
+    this.useMilliseconds =
+      typeof useMilliseconds == "undefined" ? true : useMilliseconds;
     this.showPID = showPID || false;
     this.jsonFormat = jsonFormat;
     this.coloredFileOutput =
       typeof coloredFileOutput == "undefined" ? true : coloredFileOutput;
   }
 
-  close = (): void => {
+  close = (): void =>
+    this.fileStream.close((err) => {
+      if (err) {
+        throw err;
+      }
+    });
+  private getFileName = (): string =>
+    path.join(
+      this.file.dir,
+      `${this.file.name}.${this.file.id}.${this.file.ext}`
+    );
+  private getInitFileId = (): void => {
     try {
-      closeSync(this.fileDescriptor);
-      closeSync(this.errorFileDescriptor);
-    } catch (e: any) {
-      if (e.message != "EBADF: bad file descriptor, close") throw e;
+      try {
+        accessSync(this.file.dir);
+      } catch {
+        mkdirSync(this.file.dir, { recursive: true });
+      }
+      if (!this.file.id) {
+        this.file.id =
+          readdirSync(this.file.dir)
+            .filter((el) => el.match(`${this.file.name}.*.${this.file.ext}`))
+            .map((el) => Number(el.split(".").at(-2)))
+            .sort((a, b) => b - a)[0] || 0;
+      }
+      try {
+        const fileName = this.getFileName();
+        accessSync(fileName, constants.R_OK);
+        const st = statSync(fileName);
+        this.file.writed = st.size;
+        if (this.file.writed > this.file.maxSize) {
+          this.file.id++;
+          this.file.writed = 0;
+        }
+      } catch {}
+    } catch (e) {
+      throw e;
     }
   };
-
   private zerofill = (val: number, digits: number = 2): string => {
     try {
       let res: string = String(val);
@@ -164,6 +219,15 @@ export class Logger {
     settings?: settings
   ): void => {
     try {
+      if (this.file.writed > this.file.maxSize) {
+        this.fileStream.end();
+        this.file.id++;
+        this.file.writed = 0;
+        this.fileStream = createWriteStream(this.getFileName(), {
+          flags: "a",
+          encoding: "utf8",
+        });
+      }
       const writeMode: writeMode = settings?.writeMode || "console+file";
       if (typeof data == "object") {
         data = JSON.stringify(data, null, this.jsonFormat);
@@ -182,9 +246,7 @@ export class Logger {
         styles,
         `${this.getTime()}|${
           this.showPID ? process.pid + "|" : ""
-        }${statusTitle}${
-          this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data
-        }`,
+        }${statusTitle}${data}`,
         { validateStream: false }
       );
       if (writeMode === "console" || writeMode === "console+file") {
@@ -193,18 +255,13 @@ export class Logger {
           : console.log(coloredText);
       }
       if (writeMode === "file" || writeMode === "console+file") {
-        const descriptor = settings?.errorDescriptor
-          ? this.errorFileDescriptor
-          : this.fileDescriptor;
-        writeFileSync(
-          descriptor,
-          `${
-            this.coloredFileOutput
-              ? coloredText
-              : stripVTControlCharacters(coloredText)
-          }\n`,
-          "utf8"
-        );
+        const text = `${
+          this.coloredFileOutput
+            ? coloredText
+            : stripVTControlCharacters(coloredText)
+        }\n`;
+        this.fileStream.write(text);
+        this.file.writed += Buffer.byteLength(text, "utf8");
       }
     } catch (e) {
       throw e;

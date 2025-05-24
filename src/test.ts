@@ -1,14 +1,14 @@
 import { Logger } from "./index";
 
 (async () => {
+  const logger = new Logger({
+    dirPath: "./data/logs/",
+    debugWriteMode: "file",
+    useMilliseconds: false,
+    showPID: true,
+    rotateFile: { size: 10, unit: "M" },
+  });
   try {
-    const logger = new Logger({
-      dirPath: "./data/logs/",
-      debugWriteMode: "file",
-      useMilliseconds: false,
-      maxConsoleTextLen: 20,
-      showPID: true,
-    });
     logger.log("test data", {
       background: "bgBlue",
     });
@@ -17,8 +17,9 @@ import { Logger } from "./index";
     logger.info("info");
     logger.error({ error: true, message: { json: "parsed" } });
     logger.debug("Some debug data");
-    logger.close();
   } catch (e: any) {
     console.error(e.message);
+  } finally {
+    logger.close();
   }
 })();

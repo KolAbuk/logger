@@ -11,14 +11,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("./index");
 (() => __awaiter(void 0, void 0, void 0, function* () {
+    const logger = new index_1.Logger({
+        dirPath: "./data/logs/",
+        debugWriteMode: "file",
+        useMilliseconds: false,
+        showPID: true,
+        rotateFile: { size: 10, unit: "M" },
+    });
     try {
-        const logger = new index_1.Logger({
-            dirPath: "./data/logs/",
-            debugWriteMode: "file",
-            useMilliseconds: false,
-            maxConsoleTextLen: 20,
-            showPID: true,
-        });
         logger.log("test data", {
             background: "bgBlue",
         });
@@ -27,9 +27,11 @@ const index_1 = require("./index");
         logger.info("info");
         logger.error({ error: true, message: { json: "parsed" } });
         logger.debug("Some debug data");
-        logger.close();
     }
     catch (e) {
         console.error(e.message);
+    }
+    finally {
+        logger.close();
     }
 }))();

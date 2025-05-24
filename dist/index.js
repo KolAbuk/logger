@@ -7,16 +7,44 @@ exports.Logger = void 0;
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const node_util_1 = require("node:util");
+const node_fs_1 = require("node:fs");
 class Logger {
-    constructor({ dirPath, fileName, errorFileName, debugWriteMode, useMilliseconds, maxConsoleTextLen, showPID, jsonFormat, coloredFileOutput, }) {
-        this.close = () => {
+    constructor({ dirPath, fileName, fileExt, debugWriteMode, useMilliseconds, showPID, jsonFormat, coloredFileOutput, rotateFile, }) {
+        this.close = () => this.fileStream.close((err) => {
+            if (err) {
+                throw err;
+            }
+        });
+        this.getFileName = () => path_1.default.join(this.file.dir, `${this.file.name}.${this.file.id}.${this.file.ext}`);
+        this.getInitFileId = () => {
             try {
-                (0, fs_1.closeSync)(this.fileDescriptor);
-                (0, fs_1.closeSync)(this.errorFileDescriptor);
+                try {
+                    (0, node_fs_1.accessSync)(this.file.dir);
+                }
+                catch (_a) {
+                    (0, node_fs_1.mkdirSync)(this.file.dir, { recursive: true });
+                }
+                if (!this.file.id) {
+                    this.file.id =
+                        (0, node_fs_1.readdirSync)(this.file.dir)
+                            .filter((el) => el.match(`${this.file.name}.*.${this.file.ext}`))
+                            .map((el) => Number(el.split(".").at(-2)))
+                            .sort((a, b) => b - a)[0] || 0;
+                }
+                try {
+                    const fileName = this.getFileName();
+                    (0, node_fs_1.accessSync)(fileName, node_fs_1.constants.R_OK);
+                    const st = (0, node_fs_1.statSync)(fileName);
+                    this.file.writed = st.size;
+                    if (this.file.writed > this.file.maxSize) {
+                        this.file.id++;
+                        this.file.writed = 0;
+                    }
+                }
+                catch (_b) { }
             }
             catch (e) {
-                if (e.message != "EBADF: bad file descriptor, close")
-                    throw e;
+                throw e;
             }
         };
         this.zerofill = (val, digits = 2) => {
@@ -45,6 +73,15 @@ class Logger {
         };
         this.logger = (data, statusTitle, settings) => {
             try {
+                if (this.file.writed > this.file.maxSize) {
+                    this.fileStream.end();
+                    this.file.id++;
+                    this.file.writed = 0;
+                    this.fileStream = (0, fs_1.createWriteStream)(this.getFileName(), {
+                        flags: "a",
+                        encoding: "utf8",
+                    });
+                }
                 const writeMode = (settings === null || settings === void 0 ? void 0 : settings.writeMode) || "console+file";
                 if (typeof data == "object") {
                     data = JSON.stringify(data, null, this.jsonFormat);
@@ -59,19 +96,18 @@ class Logger {
                 if (settings === null || settings === void 0 ? void 0 : settings.modifiers) {
                     styles.push(...settings.modifiers);
                 }
-                const coloredText = (0, node_util_1.styleText)(styles, `${this.getTime()}|${this.showPID ? process.pid + "|" : ""}${statusTitle}${this.maxConsoleTextLen ? data.slice(0, this.maxConsoleTextLen) : data}`, { validateStream: false });
+                const coloredText = (0, node_util_1.styleText)(styles, `${this.getTime()}|${this.showPID ? process.pid + "|" : ""}${statusTitle}${data}`, { validateStream: false });
                 if (writeMode === "console" || writeMode === "console+file") {
                     (settings === null || settings === void 0 ? void 0 : settings.errorDescriptor)
                         ? console.error(coloredText)
                         : console.log(coloredText);
                 }
                 if (writeMode === "file" || writeMode === "console+file") {
-                    const descriptor = (settings === null || settings === void 0 ? void 0 : settings.errorDescriptor)
-                        ? this.errorFileDescriptor
-                        : this.fileDescriptor;
-                    (0, fs_1.writeFileSync)(descriptor, `${this.coloredFileOutput
+                    const text = `${this.coloredFileOutput
                         ? coloredText
-                        : (0, node_util_1.stripVTControlCharacters)(coloredText)}\n`, "utf8");
+                        : (0, node_util_1.stripVTControlCharacters)(coloredText)}\n`;
+                    this.fileStream.write(text);
+                    this.file.writed += Buffer.byteLength(text, "utf8");
                 }
             }
             catch (e) {
@@ -92,19 +128,31 @@ class Logger {
                 writeMode: this.debugWriteMode,
             })
             : undefined;
-        if (!(0, fs_1.existsSync)(dirPath)) {
-            (0, fs_1.mkdirSync)(dirPath, { recursive: true });
+        const rotateFileUnit2Bytes = {
+            B: 1,
+            K: 1024,
+            M: 1024 * 1024,
+            G: 1024 * 1024 * 1024,
+        };
+        if (!rotateFile) {
+            rotateFile = { size: 10, unit: "M" };
         }
-        if (!fileName) {
-            fileName = "log.ansi";
-        }
-        this.fileDescriptor = (0, fs_1.openSync)(path_1.default.join(dirPath, fileName), "a");
-        this.errorFileDescriptor = errorFileName
-            ? (0, fs_1.openSync)(path_1.default.join(dirPath, errorFileName), "a")
-            : this.fileDescriptor;
-        this.debugWriteMode = debugWriteMode || "none";
-        this.useMilliseconds = useMilliseconds || false;
-        this.maxConsoleTextLen = maxConsoleTextLen;
+        this.file = {
+            writed: 0,
+            maxSize: rotateFile.size * rotateFileUnit2Bytes[rotateFile.unit],
+            dir: path_1.default.resolve(dirPath),
+            name: fileName || "log",
+            ext: fileExt || "ansi",
+            id: 0,
+        };
+        this.getInitFileId();
+        this.fileStream = (0, fs_1.createWriteStream)(this.getFileName(), {
+            flags: "a",
+            encoding: "utf8",
+        });
+        this.debugWriteMode = debugWriteMode || "console+file";
+        this.useMilliseconds =
+            typeof useMilliseconds == "undefined" ? true : useMilliseconds;
         this.showPID = showPID || false;
         this.jsonFormat = jsonFormat;
         this.coloredFileOutput =

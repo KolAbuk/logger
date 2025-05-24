@@ -1,12 +1,12 @@
-import { createWriteStream, WriteStream } from "fs";
-import path from "path";
+import path from "node:path";
 import { stripVTControlCharacters, styleText } from "node:util";
 import {
   accessSync,
   mkdirSync,
   readdirSync,
   statSync,
-  constants,
+  createWriteStream,
+  WriteStream,
 } from "node:fs";
 
 export type writeMode = "none" | "console" | "file" | "console+file";
@@ -171,7 +171,7 @@ export class Logger {
       }
       try {
         const fileName = this.getFileName();
-        accessSync(fileName, constants.R_OK);
+        accessSync(fileName);
         const st = statSync(fileName);
         this.file.writed = st.size;
         if (this.file.writed > this.file.maxSize) {

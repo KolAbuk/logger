@@ -4,8 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
-const fs_1 = require("fs");
-const path_1 = __importDefault(require("path"));
+const node_path_1 = __importDefault(require("node:path"));
 const node_util_1 = require("node:util");
 const node_fs_1 = require("node:fs");
 class Logger {
@@ -15,7 +14,7 @@ class Logger {
                 throw err;
             }
         });
-        this.getFileName = () => path_1.default.join(this.file.dir, `${this.file.name}.${this.file.id}.${this.file.ext}`);
+        this.getFileName = () => node_path_1.default.join(this.file.dir, `${this.file.name}.${this.file.id}.${this.file.ext}`);
         this.getInitFileId = () => {
             try {
                 try {
@@ -33,7 +32,7 @@ class Logger {
                 }
                 try {
                     const fileName = this.getFileName();
-                    (0, node_fs_1.accessSync)(fileName, node_fs_1.constants.R_OK);
+                    (0, node_fs_1.accessSync)(fileName);
                     const st = (0, node_fs_1.statSync)(fileName);
                     this.file.writed = st.size;
                     if (this.file.writed > this.file.maxSize) {
@@ -77,7 +76,7 @@ class Logger {
                     this.fileStream.end();
                     this.file.id++;
                     this.file.writed = 0;
-                    this.fileStream = (0, fs_1.createWriteStream)(this.getFileName(), {
+                    this.fileStream = (0, node_fs_1.createWriteStream)(this.getFileName(), {
                         flags: "a",
                         encoding: "utf8",
                     });
@@ -140,13 +139,13 @@ class Logger {
         this.file = {
             writed: 0,
             maxSize: rotateFile.size * rotateFileUnit2Bytes[rotateFile.unit],
-            dir: path_1.default.resolve(dirPath),
+            dir: node_path_1.default.resolve(dirPath),
             name: fileName || "log",
             ext: fileExt || "ansi",
             id: 0,
         };
         this.getInitFileId();
-        this.fileStream = (0, fs_1.createWriteStream)(this.getFileName(), {
+        this.fileStream = (0, node_fs_1.createWriteStream)(this.getFileName(), {
             flags: "a",
             encoding: "utf8",
         });

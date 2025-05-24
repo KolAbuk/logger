@@ -16,7 +16,7 @@ const index_1 = require("./index");
         debugWriteMode: "file",
         useMilliseconds: false,
         showPID: true,
-        rotateFile: { size: 10, unit: "M" },
+        rotateFile: { size: 10, unit: "K" },
     });
     try {
         logger.log("test data", {
@@ -26,7 +26,7 @@ const index_1 = require("./index");
         logger.warn(null);
         logger.info("info");
         logger.error({ error: true, message: { json: "parsed" } });
-        logger.debug("Some debug data");
+        logger.debug("Some debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug dataSome debug data");
     }
     catch (e) {
         console.error(e.message);
